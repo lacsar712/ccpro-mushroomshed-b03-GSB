@@ -1,4 +1,12 @@
 const TOKEN_KEY = 'ms_token'
+const USER_KEY = 'ms_user'
+
+export interface AuthUser {
+  id: number
+  username: string
+  role: string
+  displayName: string
+}
 
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY)
@@ -8,8 +16,23 @@ export function setToken(token: string) {
   localStorage.setItem(TOKEN_KEY, token)
 }
 
+export function getUser(): AuthUser | null {
+  const raw = localStorage.getItem(USER_KEY)
+  if (!raw) return null
+  try {
+    return JSON.parse(raw) as AuthUser
+  } catch {
+    return null
+  }
+}
+
+export function setUser(user: AuthUser) {
+  localStorage.setItem(USER_KEY, JSON.stringify(user))
+}
+
 export function clearToken() {
   localStorage.removeItem(TOKEN_KEY)
+  localStorage.removeItem(USER_KEY)
 }
 
 export async function api<T>(path: string, options: RequestInit = {}): Promise<T> {

@@ -201,6 +201,33 @@ select {
   border: 1px solid var(--line);
 }
 
+.btn.warn {
+  background: var(--warn);
+  color: #fff;
+}
+
+.seal-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mushroom-brown);
+  background: rgba(166, 124, 42, 0.14);
+  border: 1px solid rgba(166, 124, 42, 0.45);
+  white-space: nowrap;
+}
+
+.row-actions {
+  white-space: nowrap;
+}
+
+.row-actions .btn {
+  padding: 6px 10px;
+  margin-right: 6px;
+  font-size: 13px;
+}
+
 .table-wrap {
   overflow: auto;
 }

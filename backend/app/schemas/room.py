@@ -12,6 +12,20 @@ class RoomCreateSchema(Schema):
     status = fields.Str(required=True, validate=validate.OneOf(ROOM_STATUSES))
 
 
+class RoomUpdateSchema(Schema):
+    species = fields.Str(required=False, validate=validate.Length(min=1, max=64))
+    status = fields.Str(required=False, validate=validate.OneOf(ROOM_STATUSES))
+
+
+class SpeciesSealOutSchema(Schema):
+    id = fields.Int(dump_only=True)
+    room_id = fields.Int(data_key="roomId")
+    species = fields.Str()
+    sealed_at = fields.DateTime(data_key="sealedAt")
+    released_at = fields.DateTime(allow_none=True, data_key="releasedAt")
+    release_reason = fields.Str(allow_none=True, data_key="releaseReason")
+
+
 class RoomOutSchema(Schema):
     id = fields.Int(dump_only=True)
     shed_id = fields.Int(data_key="shedId")

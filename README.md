@@ -44,7 +44,12 @@ docker compose up --build
 
 1. **Auth**：JWT 登录（OAuth2 表单或 JSON），`/api/auth/login`、`/api/auth/me`，`Authorization: Bearer`
 2. **Shed 菇房**：`name`、`location`、`notes`
-3. **Room 出菇室**：`shedId`、`roomCode`、`species`、`capacityBags`、`status(fruiting|idle|sanitize)`；同菇房 `roomCode` 唯一
+3. **Room 出菇室**：`shedId`、`roomCode`、`species`、`capacityBags`、`status(fruiting|idle|sanitize)`；同菇房 `roomCode` 唯一；`PATCH /api/rooms/:id` 可改 `species` / `status`
+   - **物种封印 SpeciesSeal**：进入 `fruiting`（建档即为 fruiting，或由其它房态切到 fruiting）时把当时的 `species` 抄进一张封印（`roomId`、`species`、`sealedAt`、`releasedAt` 可空）。同室同时只保留一张 `releasedAt` 为空的封印。
+   - 封印未解除时改 `species` 返回 **409**（正文含 `sealId`），库里的 species 保持原样；解封后才允许修改。
+   - 再次进入 fruiting 会再封一张，物种以进入当时的 `species` 为准。
+   - `GET /api/rooms` 每行带 `sealedSpecies` / `sealId` / `sealedAt`，取未解封那张封印；没有封印则为 `null`。
+   - 解封：`POST /api/species-seals/:id/release`，请求体 `{"reason": "..."}`，**仅 admin（场长）可解封，reason 不能空白**；fruiter 调用返回 **403**。
 4. **ClimateLog 环境记录**：`roomId`、`recordedAt`、`tempC`、`humidityPct`、`co2Ppm`、`notes`；`humidityPct ∈ [1,100]`，否则 **400**
 5. **FlushHarvest 采收**：`roomId`、`harvestedAt`、`flushNo(≥1)`、`weightKg`、`grade(A|B|C)`、`operatorName`；`weightKg > 0`，否则 **400**
 6. **Dashboard**：`shedTotal`、`fruitingRoomCount`、`climateLast24h`、`harvestKgLast7d`

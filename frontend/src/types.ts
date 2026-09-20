@@ -15,6 +15,9 @@ export interface Room {
   species: string
   capacityBags: number
   status: RoomStatus
+  sealId?: number | null
+  sealedSpecies?: string | null
+  sealedAt?: string | null
 }
 
 export interface ClimateLog {
