@@ -44,12 +44,19 @@ docker compose up --build
 
 1. **Auth**：JWT 登录（OAuth2 表单或 JSON），`/api/auth/login`、`/api/auth/me`，`Authorization: Bearer`
 2. **Shed 菇房**：`name`、`location`、`notes`
-3. **Room 出菇室**：`shedId`、`roomCode`、`species`、`capacityBags`、`status(fruiting|idle|sanitize)`；同菇房 `roomCode` 唯一
-4. **ClimateLog 环境记录**：`roomId`、`recordedAt`、`tempC`、`humidityPct`、`co2Ppm`、`notes`；`humidityPct ∈ [1,100]`，否则 **400**
-5. **FlushHarvest 采收**：`roomId`、`harvestedAt`、`flushNo(≥1)`、`weightKg`、`grade(A|B|C)`、`operatorName`；`weightKg > 0`，否则 **400**
-6. **Dashboard**：`shedTotal`、`fruitingRoomCount`、`climateLast24h`、`harvestKgLast7d`
+3. **Room 出菇室**：`shedId`、`roomCode`、`species`、`capacityBags`、`status(fruiting|idle|sanitize)`；同菇房 `roomCode` 唯一；支持 `PATCH /api/rooms/{id}` 修改编号 / 品种 / 容量 / 状态
+4. **SpeciesSeal 品种封印**：出菇室进入 `fruiting`（含直接以 fruiting 创建）时，把当时的 `species` 抄进一张封印：`roomId`、`species`、`sealedAt`、`releasedAt`（可空）、`releaseReason`、`releasedBy`。同一出菇室同时只留一张 `releasedAt` 为空的封印
+   - 封印未解除时修改该室 `species` → **409**，响应体带 `sealId`，库中 `species` 保持原样
+   - 解封：`POST /api/species-seals/{id}/release`，请求体 `reason` 必填且不能空白（否则 **400**）；重复解封 **409**
+   - **只有 admin（场长）能解封**，`fruiter`（出菇员）调用得到 **403**；解封之后才允许改 `species`
+   - 再次进入 `fruiting` 会再封一张，物种以进入当时的 `species` 为准
+   - `GET /api/rooms` 每行带 `sealedSpecies`（未解封那张封印上的品种，无封印则为 `null`）与 `sealId`
+   - 种子数据中 R-01（香菇）仍处封印中，V-01 留有一张已解封的历史封印
+5. **ClimateLog 环境记录**：`roomId`、`recordedAt`、`tempC`、`humidityPct`、`co2Ppm`、`notes`；`humidityPct ∈ [1,100]`，否则 **400**
+6. **FlushHarvest 采收**：`roomId`、`harvestedAt`、`flushNo(≥1)`、`weightKg`、`grade(A|B|C)`、`operatorName`；`weightKg > 0`，否则 **400**
+7. **Dashboard**：`shedTotal`、`fruitingRoomCount`、`climateLast24h`、`harvestKgLast7d`
 
-各实体 API：`GET/POST` 列表与创建、`DELETE` 按 ID 删除。
+各实体 API：`GET/POST` 列表与创建、`DELETE` 按 ID 删除（出菇室另有 `PATCH`）。
 
 ## 前端页面
 

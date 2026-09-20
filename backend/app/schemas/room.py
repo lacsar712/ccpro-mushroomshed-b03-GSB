@@ -12,6 +12,13 @@ class RoomCreateSchema(Schema):
     status = fields.Str(required=True, validate=validate.OneOf(ROOM_STATUSES))
 
 
+class RoomUpdateSchema(Schema):
+    room_code = fields.Str(data_key="roomCode", validate=validate.Length(min=1, max=32))
+    species = fields.Str(validate=validate.Length(min=1, max=64))
+    capacity_bags = fields.Int(data_key="capacityBags", validate=validate.Range(min=1))
+    status = fields.Str(validate=validate.OneOf(ROOM_STATUSES))
+
+
 class RoomOutSchema(Schema):
     id = fields.Int(dump_only=True)
     shed_id = fields.Int(data_key="shedId")
@@ -19,3 +26,5 @@ class RoomOutSchema(Schema):
     species = fields.Str()
     capacity_bags = fields.Int(data_key="capacityBags")
     status = fields.Str()
+    sealed_species = fields.Str(data_key="sealedSpecies", allow_none=True)
+    seal_id = fields.Int(data_key="sealId", allow_none=True)

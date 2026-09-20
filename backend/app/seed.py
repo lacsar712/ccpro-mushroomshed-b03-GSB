@@ -6,6 +6,7 @@ from app.models.climate_log import ClimateLog
 from app.models.flush_harvest import FlushHarvest
 from app.models.room import Room
 from app.models.shed import Shed
+from app.models.species_seal import SpeciesSeal
 from app.models.user import User
 
 
@@ -77,6 +78,25 @@ def seed() -> None:
             db.flush()
 
             now = datetime.now(timezone.utc)
+            # 品种封印：R-01 仍处封印中（香菇）；V-01 的封印已解除，留作历史
+            db.add_all(
+                [
+                    SpeciesSeal(
+                        room_id=r1.id,
+                        species="香菇",
+                        sealed_at=now - timedelta(days=2),
+                    ),
+                    SpeciesSeal(
+                        room_id=r3.id,
+                        species="杏鲍菇",
+                        sealed_at=now - timedelta(days=10),
+                        released_at=now - timedelta(days=8),
+                        release_reason="轮作清场，场长确认解封",
+                        released_by="admin",
+                    ),
+                ]
+            )
+
             db.add_all(
                 [
                     ClimateLog(
